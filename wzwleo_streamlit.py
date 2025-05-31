@@ -8,6 +8,7 @@ Created on Tue May 27 14:48:37 2025
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import chardet
 
 import google.generativeai as genai
 
@@ -33,7 +34,12 @@ with tab1:
     
     if uploaded_file:
         st.write("檔案預覽：")
-        df = pd.read_csv(uploaded_file)
+        
+        raw = uploaded_file.read()
+        result = chardet.detect(raw)
+        encoding = result['encoding']
+        uploaded_file.seek(0)
+        df = pd.read_csv(uploaded_file, encoding=encoding)
         st.dataframe(df)
         
         st.header("類別分布")
