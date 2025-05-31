@@ -9,6 +9,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import chardet
+import io
 
 import google.generativeai as genai
 
@@ -33,32 +34,45 @@ with tab1:
         st.success("文件上傳成功！")
     
     if uploaded_file:
-        st.write("檔案預覽：")
+        st.write("檔案預覽：")    
         
-        raw = uploaded_file.read()
+        raw = uploaded_file.read(10000)
+        
         result = chardet.detect(raw)
+        
         encoding = result['encoding']
-        uploaded_file.seek(0)
-        df = pd.read_csv(uploaded_file, encoding=encoding)
+        onfidence = result["confidence"]
+        
+        uploaded_file.seek(0)       
+        decoded = uploaded_file.read().decode(encoding, errors='replace')
+    
+        df = pd.read_csv(io.StringIO(decoded))
         st.dataframe(df)
         
         st.header("類別分布")
         gender = st.selectbox("選擇欄位",["--請選擇欄位--"] + list(df.columns))
         if gender != "--請選擇欄位--":
-            counts = df[gender].value_counts()
+            num_categories = df[gender].nunique()
             
-            fig, ax = plt.subplots(figsize=(12, 6)) 
-            
-            counts_sorted = counts.sort_index()
-            
-            counts_sorted.plot(kind='bar', ax=ax, color='skyblue', alpha=0.8)
-            ax.set_title(f"{gender}分類數量", fontsize=16, pad=20)
-            ax.set_xlabel(gender, fontsize=12)
-            ax.set_ylabel("數量", fontsize=12)
-            ax.set_xticklabels(counts_sorted.index, rotation=0, fontsize=11, ha='center')
-            plt.tight_layout()
-            
-            st.pyplot(fig)
+            # 如果類別太多（例如超過20），可以顯示警告
+            if num_categories > 20:
+                st.write(f"{gender} 欄位共有 {num_categories} 個不同的類別")
+                st.warning("類別太多，可能會看不清楚！")
+            else:    
+                counts = df[gender].value_counts()
+                
+                fig, ax = plt.subplots(figsize=(12, 6)) 
+                
+                counts_sorted = counts.sort_index()
+                
+                counts_sorted.plot(kind='bar', ax=ax, color='skyblue', alpha=0.8)
+                ax.set_title(f"{gender}分類數量", fontsize=16, pad=20)
+                ax.set_xlabel(gender, fontsize=12)
+                ax.set_ylabel("數量", fontsize=12)
+                ax.set_xticklabels(counts_sorted.index, rotation=0, fontsize=11, ha='center')
+                plt.tight_layout()
+                
+                st.pyplot(fig)
         
 model = genai.GenerativeModel("gemini-1.5-flash")        
 with tab2:
