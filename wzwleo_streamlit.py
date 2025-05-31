@@ -56,6 +56,7 @@ with tab1:
         
         st.header("類別分布")
         plt.rcParams['font.family'] = my_font.get_name()
+        st.write(my_font.get_name()) 
         gender = st.selectbox("選擇欄位",["--請選擇欄位--"] + list(df.columns))
         if gender != "--請選擇欄位--":
             num_categories = df[gender].nunique()
