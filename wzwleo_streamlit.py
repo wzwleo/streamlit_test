@@ -102,7 +102,3 @@ with tab3:
 with tab4:
     st.header("財務報表")
     
-'''
-cd "C:/專題報告"
-streamlit run "C:/專題報告/wzwleo_streamlit.py"
-'''
