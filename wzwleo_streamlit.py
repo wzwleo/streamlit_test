@@ -17,7 +17,7 @@ import google.generativeai as genai
 genai.configure(api_key="AIzaSyCdX20r2THeDoAXYhRiGJgEHM8gOWNP-ko")
 
 # 指定字體檔案路徑（如果放在 fonts 資料夾，就改成 "fonts/MicrosoftJhengHei.ttf"）
-font_path = "./fonts/msjh.ttc"
+font_path = "./fonts/NotoSansCJKtc-Regular.otf"
 
 # 建立字體物件
 my_font = fm.FontProperties(fname=font_path)
@@ -58,6 +58,7 @@ with tab1:
         plt.rcParams['font.family'] = my_font.get_name()
         
         gender = st.selectbox("選擇欄位",["--請選擇欄位--"] + list(df.columns))
+        
         if gender != "--請選擇欄位--":
             num_categories = df[gender].nunique()
             
@@ -67,17 +68,16 @@ with tab1:
                 st.warning("類別太多，可能會看不清楚！")
             else:    
                 counts = df[gender].value_counts()
-                
+                counts_sorted = counts.sort_index()
                 fig, ax = plt.subplots(figsize=(12, 6)) 
                 
-                counts_sorted = counts.sort_index()
                 
                 counts_sorted.plot(kind='bar', ax=ax, color='skyblue', alpha=0.8)
-                ax.set_title(f"{gender}分類數量", fontsize=16, pad=20)
-                ax.set_xlabel(gender, fontsize=12)
-                ax.set_ylabel("數量", fontsize=12)
-                ax.set_xticklabels(counts_sorted.index, rotation=0, fontsize=11, ha='center')
-                plt.tight_layout()
+                ax.set_title(f"{gender}分類數量", fontsize=16, pad=20, fontproperties=my_font)
+                ax.set_xlabel(gender, fontsize=12, fontproperties=my_font)
+                ax.set_ylabel("數量", fontsize=12, fontproperties=my_font)
+                ax.set_xticklabels(counts_sorted.index, rotation=0, fontsize=11, ha='center', fontproperties=my_font)
+
                 
                 st.pyplot(fig)
         
@@ -102,3 +102,7 @@ with tab3:
 with tab4:
     st.header("財務報表")
     
+'''
+cd "C:/專題報告"
+streamlit run "C:/專題報告/wzwleo_streamlit.py"
+'''
