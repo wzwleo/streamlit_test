@@ -8,6 +8,7 @@ Created on Tue May 27 14:48:37 2025
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 import chardet
 import io
 
@@ -15,7 +16,11 @@ import google.generativeai as genai
 
 genai.configure(api_key="AIzaSyCdX20r2THeDoAXYhRiGJgEHM8gOWNP-ko")
 
-plt.rcParams['font.family'] = ['Microsoft JhengHei']  # 微軟正黑體，Windows系統常用
+# 指定字體檔案路徑（如果放在 fonts 資料夾，就改成 "fonts/MicrosoftJhengHei.ttf"）
+font_path = "./fonts/msjh.ttc"
+
+# 建立字體物件
+my_font = fm.FontProperties(fname=font_path)
 
 st.title("Streamlit作業練習")
 
@@ -50,6 +55,7 @@ with tab1:
         st.dataframe(df)
         
         st.header("類別分布")
+        plt.rcParams['font.family'] = my_font.get_name()
         gender = st.selectbox("選擇欄位",["--請選擇欄位--"] + list(df.columns))
         if gender != "--請選擇欄位--":
             num_categories = df[gender].nunique()
@@ -95,6 +101,3 @@ with tab3:
 with tab4:
     st.header("財務報表")
     
-'''
-streamlit run "C:/專題報告/wzwleo_streamlit.py"
-'''
