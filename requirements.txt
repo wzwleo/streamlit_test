@@ -2,4 +2,4 @@ streamlit
 pandas
 matplotlib
 google.generativeai
-import chardet
+chardet
