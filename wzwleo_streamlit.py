@@ -213,7 +213,4 @@ with tab4:
         st.warning("請先在 基礎功能 上傳資料")
 
     
-'''
-cd "C:/專題報告"
-streamlit run "C:/專題報告/wzwleo_streamlit.py"
-'''
+
