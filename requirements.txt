@@ -4,3 +4,4 @@ matplotlib
 chardet
 scikit-learn
 google-generativeai
+dotenv
