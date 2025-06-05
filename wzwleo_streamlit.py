@@ -112,7 +112,7 @@ with tab1:
 
 if 'df' in st.session_state:
     df = st.session_state['df']
-    st.sidebar.write("檔案預覽")
+    st.sidebar.write("檔案預覽：")
     st.sidebar.dataframe(df)
 else:
     st.write("")
