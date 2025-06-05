@@ -2,6 +2,5 @@ streamlit
 pandas
 matplotlib
 chardet
-sklearn.linear_model
-google.generativeai
 scikit-learn
+google-generativeai
