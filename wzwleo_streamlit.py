@@ -5,10 +5,19 @@ import matplotlib.font_manager as fm
 import chardet
 import io
 from sklearn.linear_model import LinearRegression
+import os
+from dotenv import load_dotenv
 
 import google.generativeai as genai
 
-genai.configure(api_key="AIzaSyCdX20r2THeDoAXYhRiGJgEHM8gOWNP-ko")
+# 載入 .env 檔案中的變數
+load_dotenv()
+
+# 從環境變數中取得 API 金鑰
+api_key = os.getenv("GOOGLE_API_KEY")
+
+# 設定 API 金鑰
+genai.configure(api_key=api_key)
 
 # 指定字體檔案路徑（如果放在 fonts 資料夾，就改成 "fonts/MicrosoftJhengHei.ttf"）
 font_path = "./fonts/NotoSansCJKtc-Regular.otf"
@@ -204,4 +213,7 @@ with tab4:
         st.warning("請先在 基礎功能 上傳資料")
 
     
-
+'''
+cd "C:/專題報告"
+streamlit run "C:/專題報告/wzwleo_streamlit.py"
+'''
