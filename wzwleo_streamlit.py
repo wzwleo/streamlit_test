@@ -65,7 +65,7 @@ st.title("Streamlit作業練習")
 st.sidebar.title("側邊欄")  
  
 # 創建多個標籤頁
-tab1, tab2, tab3, tab4= st.tabs(["基礎功能", "Gemini API的連接", "資料分析", "線性回歸分析"])
+tab1, tab2, tab3, tab4= st.tabs(["基礎功能🐣", "Gemini API的連接🚀", "資料分析📊", "線性回歸分析📈"])
 
 with tab1:
     df = None
@@ -112,7 +112,7 @@ with tab1:
 
 if 'df' in st.session_state:
     df = st.session_state['df']
-    st.sidebar.write("檔案預覽：")
+    st.sidebar.write("檔案預覽")
     st.sidebar.dataframe(df)
 else:
     st.write("")
@@ -204,4 +204,7 @@ with tab4:
         st.warning("請先在 基礎功能 上傳資料")
 
     
-
+'''
+cd "C:/專題報告"
+streamlit run "C:/專題報告/wzwleo_streamlit.py"
+'''
