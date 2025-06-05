@@ -133,7 +133,7 @@ with tab2:
 
 with tab3:
     st.header("資料分析")
-    st.subheader("類別分布")
+    st.subheader("-類別分布")
     if 'df' in st.session_state:
         df = st.session_state['df']
         plt.rcParams['font.family'] = my_font.get_name()
