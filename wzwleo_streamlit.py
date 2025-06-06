@@ -6,12 +6,8 @@ import chardet
 import io
 from sklearn.linear_model import LinearRegression
 import os
-from dotenv import load_dotenv
 
 import google.generativeai as genai
-
-# 載入 .env 檔案中的變數
-load_dotenv()
 
 # 從環境變數中取得 API 金鑰
 api_key = os.getenv("GOOGLE_API_KEY")
