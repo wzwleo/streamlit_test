@@ -304,7 +304,4 @@ with tab5:
         
         
    
-'''
-cd "C:/專題報告"
-streamlit run "C:/專題報告/wzwleo_streamlit.py"
-'''
+
