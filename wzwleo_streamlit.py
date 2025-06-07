@@ -5,10 +5,13 @@ import matplotlib.font_manager as fm
 import chardet
 import io
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
 import os
-
+from dotenv import load_dotenv
 import google.generativeai as genai
 
+load_dotenv()
 # 從環境變數中取得 API 金鑰
 api_key = os.getenv("GOOGLE_API_KEY")
 
@@ -70,7 +73,7 @@ st.title("Streamlit作業練習")
 st.sidebar.title("側邊欄")  
  
 # 創建多個標籤頁
-tab1, tab2, tab3, tab4= st.tabs(["基礎功能🐣", "Gemini API的連接🚀", "資料分析📊", "線性回歸分析📈"])
+tab1, tab2, tab3, tab4, tab5= st.tabs(["基礎功能🐣", "Gemini API的連接🚀", "資料分析📊", "線性回歸分析📈", "決策樹演算法🌳"])
 
 with tab1:
     df = None
@@ -86,6 +89,8 @@ with tab1:
             file_path = sample_files[uploaded_file]
             df = load_uploaded_file(file_path)
             st.success(f"資料上傳成功！總共有{df.shape[0]}筆資料")
+        elif uploaded_file == "--請選擇欄位--":
+            clear_data()
             
             
     elif status == "上傳檔案":
@@ -123,7 +128,11 @@ else:
     st.write("")
         
         
-model = genai.GenerativeModel("gemini-1.5-flash")    
+if "chat" not in st.session_state:
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    st.session_state.chat = model.start_chat(history=[])
+
+chat = st.session_state.chat  # 取出 chat 對象
 with tab2:
     st.header("Gemini API的連接")
     prompt = st.text_input("請輸入你的問題：")
@@ -132,9 +141,16 @@ with tab2:
             st.warning("請輸入內容再送出。")
         else:
             with st.spinner("Gemini 正在思考..."):
-                response = model.generate_content(prompt)
+                response = chat.send_message(prompt)
                 st.success("回答：")
                 st.markdown(response.text)
+                
+                st.divider()
+                st.subheader("對話紀錄：")
+                for message in chat.history:
+                    role = "使用者" if message.role == "user" else "Gemini"
+                    content = message.parts[0].text
+                    st.markdown(f"**{role}**: {content}")
 
 with tab3:
     st.header("資料分析")
@@ -143,7 +159,7 @@ with tab3:
         df = st.session_state['df']
         plt.rcParams['font.family'] = my_font.get_name()
         
-        gender = st.selectbox("選擇欄位",["--請選擇欄位--"] + list(df.columns))
+        gender = st.selectbox("選擇欄位",["--請選擇欄位--"] + list(df.columns), key="group")
         
         if gender != "--請選擇欄位--":
             num_categories = df[gender].nunique()
@@ -174,22 +190,22 @@ with tab3:
 with tab4:
     st.header("線性回歸分析")
     
-    if 'df' in st.session_state and df is not None:
+    if 'df' in st.session_state:
         numeric_columns = df.select_dtypes(include=['number']).columns.tolist()
 
-        hobbies = st.multiselect("選擇特徵值", numeric_columns, key="multiselect_hobbies")
-        gender1 = st.selectbox("選擇目標值", ["--請選擇欄位--"] + numeric_columns, key="selectbox_1")
-        if hobbies and gender1 != "--請選擇欄位--":
+        hobbies = st.multiselect("選擇特徵值", numeric_columns, key="LinearRegression_1")
+        gender = st.selectbox("選擇目標值", ["--請選擇欄位--"] + numeric_columns, key="LinearRegression_2")
+        if hobbies and gender != "--請選擇欄位--":
            X = df[hobbies]
-           y = df[gender1]  
+           y = df[gender]  
            if len(hobbies) >= 2:
               st.warning("你選擇了超過兩個特徵欄位，繪圖只能用一個特徵欄位。")
               st.warning("還是要只輸出模型分析結果")
               if st.button("確定"):
-                  model = train_and_show_model(X, y, hobbies, gender1)
+                  model = train_and_show_model(X, y, hobbies, gender)
            else:
                 if st.button("開始分析"):                      
-                    model = train_and_show_model(X, y, hobbies, gender1)
+                    model = train_and_show_model(X, y, hobbies, gender)
                     y_pred = model.predict(X)
             
                     plt.figure(figsize=(8, 5))
@@ -198,8 +214,8 @@ with tab4:
                     plt.plot(X, y_pred, color='red', label='回歸線')
                     
                     plt.xlabel(hobbies[0], fontproperties=my_font)
-                    plt.ylabel(f'{gender1}', fontproperties=my_font)
-                    plt.title(f'{hobbies[0]} vs {gender1}', fontproperties=my_font)
+                    plt.ylabel(f'{gender}', fontproperties=my_font)
+                    plt.title(f'{hobbies[0]} vs {gender}', fontproperties=my_font)
                     plt.legend(prop=my_font)
                     plt.grid(True)
                     
@@ -208,5 +224,87 @@ with tab4:
     else:
         st.warning("請先在 基礎功能 上傳資料")
 
-    
+with tab5:
+    st.header("決策樹演算法")
+    df_2 = df
+    if 'df' in st.session_state:
+       df = st.session_state['df']       
+       gender = st.selectbox("選擇預測類別",["--請選擇欄位--"] + list(df.columns), key="DecisionTree")
+       if gender != "--請選擇欄位--":    
+           unique_count = df[gender].nunique()
+           total_rows = len(df)
+           if unique_count == total_rows:
+               st.warning("該欄位沒有預測的意義")
+           else:
+               for i in df.columns:
+                   unique_count = df[i].nunique()
+                   
+                   total_rows = len(df)
+                   if unique_count == total_rows:
+                      df = df.drop(columns=[i])     
+               df = df.drop(columns=[gender])  
 
+               st.subheader("數值型資料")
+               numeric_cols = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
+                
+               inputs_numeri = {}
+               max_cols_per_row = 2
+               for i in range(0, len(numeric_cols), max_cols_per_row):
+                   cols = st.columns(min(max_cols_per_row, len(numeric_cols) - i))
+                   for j, col_name in enumerate(numeric_cols[i:i+max_cols_per_row]):
+                       inputs_numeri[col_name] = cols[j].number_input(f"{col_name}", key=col_name, max_value=int(df[col_name].max()), min_value=0, step=1)
+               
+               
+               st.subheader("非數值型資料")
+               # 取得非數值欄位清單
+               non_numeric_cols = df.select_dtypes(exclude=['number']).columns.tolist()
+               
+               encoding_dict = {}
+               
+               for col in non_numeric_cols:
+                   le = LabelEncoder()
+                   df[col] = le.fit_transform(df[col].astype(str))
+                   # 把每個標籤對應的原始字串存在字典裡
+                   encoding_dict[col] = dict(zip(le.classes_, le.transform(le.classes_)))
+                   # 將字串形式的數字轉成整數
+                   encoding_dict[col] = {k: int(v) for k, v in encoding_dict[col].items()}
+                
+               inputs_non_numeri = {}
+               for i in range(0, len(non_numeric_cols), max_cols_per_row):
+                   cols = st.columns(min(max_cols_per_row, len(non_numeric_cols) - i))
+                   for j, col_name in enumerate(non_numeric_cols[i:i+max_cols_per_row]):
+                       inputs_non_numeri[col_name] = cols[j].number_input(f"{col_name}", key=col_name, min_value=0, max_value=df[col_name].nunique()-1, step=1)
+               
+               
+               
+               st.subheader("非數值型資料 數字對應表")
+               st.write(encoding_dict)
+               
+               if st.button("開始預測"):
+                   combined = {**inputs_numeri, **inputs_non_numeri}
+                
+                   x = df
+                   y = df_2[[gender]]
+                   
+                   model = DecisionTreeClassifier()
+                   model.fit(x, y)
+                   
+                   new_data = pd.DataFrame([combined])
+                   
+                   new_data = new_data.reindex(columns=x.columns)
+                   prediction = model.predict(new_data)
+                   predicted_value = prediction[0]
+                   
+                   st.success(f"預測結果: {predicted_value}")
+                   df.to_csv("output.csv", index=False, encoding="utf-8-sig")
+ 
+    else:
+        st.warning("請先在 基礎功能 上傳資料")
+        
+        
+        
+   
+'''
+cd "C:/專題報告"
+streamlit run "C:/專題報告/wzwleo_streamlit.py"
+'''
