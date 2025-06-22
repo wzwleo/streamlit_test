@@ -4,8 +4,8 @@ import chardet
 import io
 
 sample_files = {
-    "學生社群媒體成癮": "./data/Students Social Media Addiction.csv",
-    "學生習慣與學業成績": "./data/student_habits_performance.csv"
+    "學生社群媒體成癮": "./Students Social Media Addiction.csv",
+    "學生習慣與學業成績": "./student_habits_performance.csv"
 }
 
 def clear_data():
