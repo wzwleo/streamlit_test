@@ -5,3 +5,4 @@ chardet
 scikit-learn
 google-generativeai
 dotenv
+seaborn
