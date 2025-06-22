@@ -40,7 +40,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-'''
-cd "C:/專題報告_成果"
-streamlit run "C:/專題報告_成果/main.py"
-'''
+
